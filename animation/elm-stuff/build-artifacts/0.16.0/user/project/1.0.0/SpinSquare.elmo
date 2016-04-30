@@ -1,0 +1,82 @@
+Elm.SpinSquare = Elm.SpinSquare || {};
+Elm.SpinSquare.make = function (_elm) {
+   "use strict";
+   _elm.SpinSquare = _elm.SpinSquare || {};
+   if (_elm.SpinSquare.values) return _elm.SpinSquare.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Easing = Elm.Easing.make(_elm),
+   $Effects = Elm.Effects.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Svg = Elm.Svg.make(_elm),
+   $Svg$Attributes = Elm.Svg.Attributes.make(_elm),
+   $Svg$Events = Elm.Svg.Events.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var _op = {};
+   var init = {ctor: "_Tuple2",_0: {angle: 0,animationState: $Maybe.Nothing},_1: $Effects.none};
+   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
+   var Spin = {ctor: "Spin"};
+   var duration = $Time.second;
+   var rotateStep = 90;
+   var update = F2(function (msg,model) {
+      var _p0 = msg;
+      if (_p0.ctor === "Spin") {
+            var _p1 = model.animationState;
+            if (_p1.ctor === "Nothing") {
+                  return {ctor: "_Tuple2",_0: model,_1: $Effects.tick(Tick)};
+               } else {
+                  return {ctor: "_Tuple2",_0: model,_1: $Effects.none};
+               }
+         } else {
+            var _p3 = _p0._0;
+            var newElapsedTime = function () {
+               var _p2 = model.animationState;
+               if (_p2.ctor === "Nothing") {
+                     return 0;
+                  } else {
+                     return _p2._0.elapsedTime + (_p3 - _p2._0.prevClockTime);
+                  }
+            }();
+            return _U.cmp(newElapsedTime,duration) > 0 ? {ctor: "_Tuple2"
+                                                         ,_0: {angle: model.angle + rotateStep,animationState: $Maybe.Nothing}
+                                                         ,_1: $Effects.none} : {ctor: "_Tuple2"
+                                                                               ,_0: {angle: model.angle
+                                                                                    ,animationState: $Maybe.Just({elapsedTime: newElapsedTime
+                                                                                                                 ,prevClockTime: _p3})}
+                                                                               ,_1: $Effects.tick(Tick)};
+         }
+   });
+   var toOffset = function (animationState) {
+      var _p4 = animationState;
+      if (_p4.ctor === "Nothing") {
+            return 0;
+         } else {
+            return A6($Easing.ease,$Easing.easeOutBounce,$Easing.$float,0,rotateStep,duration,_p4._0.elapsedTime);
+         }
+   };
+   var view = F2(function (address,model) {
+      var angle = model.angle + toOffset(model.animationState);
+      return A2($Svg.svg,
+      _U.list([$Svg$Attributes.width("200"),$Svg$Attributes.height("200"),$Svg$Attributes.viewBox("0 0 200 200")]),
+      _U.list([A2($Svg.g,
+      _U.list([$Svg$Attributes.transform(A2($Basics._op["++"],"translate(100, 100) rotate(",A2($Basics._op["++"],$Basics.toString(angle),")")))
+              ,$Svg$Events.onClick(A2($Signal.message,address,Spin))]),
+      _U.list([A2($Svg.rect,
+              _U.list([$Svg$Attributes.x("-50")
+                      ,$Svg$Attributes.y("-50")
+                      ,$Svg$Attributes.width("100")
+                      ,$Svg$Attributes.height("100")
+                      ,$Svg$Attributes.rx("15")
+                      ,$Svg$Attributes.ry("15")
+                      ,$Svg$Attributes.style("fill: #60B5CC;")]),
+              _U.list([]))
+              ,A2($Svg.text$,_U.list([$Svg$Attributes.fill("white"),$Svg$Attributes.textAnchor("middle")]),_U.list([$Svg.text("Click me!")]))]))]));
+   });
+   var Model = F2(function (a,b) {    return {angle: a,animationState: b};});
+   return _elm.SpinSquare.values = {_op: _op,init: init,update: update,view: view,Model: Model};
+};
