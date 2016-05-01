@@ -62,6 +62,15 @@ drawBuilding building x =
         |> positionCorner building.width building.height -500 0
         |> putOnFloor building.height 
 
+drawGround : Form 
+drawGround = 
+    let
+        grassy =(h/2 - abs(floor))
+    in 
+        rect w grassy 
+        |> filled (rgb 0 255 150)
+        |> moveY (floor - grassy/2) 
+
 view : Signal.Address Action -> Building -> Html 
 view address building =
     div []
@@ -69,6 +78,8 @@ view address building =
     button [ (onClick  address Redraw ) ] [text "redraw"]
     , Html.fromElement(
         collage w h     
-        [(drawBuilding building 0)]
+        [
+        drawGround 
+        , (drawBuilding building 0)]
     )
     ]

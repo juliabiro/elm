@@ -10326,11 +10326,15 @@ Elm.Background.make = function (_elm) {
    });
    var w = 1200;
    var h = 600;
+   var drawGround = function () {
+      var grassy = h / 2 - $Basics.abs(floor);
+      return A2($Graphics$Collage.moveY,floor - grassy / 2,A2($Graphics$Collage.filled,A3($Color.rgb,0,255,150),A2($Graphics$Collage.rect,w,grassy)));
+   }();
    var view = F2(function (address,building) {
       return A2($Html.div,
       _U.list([]),
       _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")]))
-              ,$Html.fromElement(A3($Graphics$Collage.collage,w,h,_U.list([A2(drawBuilding,building,0)])))]));
+              ,$Html.fromElement(A3($Graphics$Collage.collage,w,h,_U.list([drawGround,A2(drawBuilding,building,0)])))]));
    });
    var Building = F4(function (a,b,c,d) {    return {height: a,width: b,seed: c,color: d};});
    return _elm.Background.values = {_op: _op
@@ -10344,6 +10348,7 @@ Elm.Background.make = function (_elm) {
                                    ,positionCorner: positionCorner
                                    ,putOnFloor: putOnFloor
                                    ,drawBuilding: drawBuilding
+                                   ,drawGround: drawGround
                                    ,view: view};
 };Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
