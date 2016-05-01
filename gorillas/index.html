@@ -7480,508 +7480,6 @@ Elm.Dict.make = function (_elm) {
                              ,values: values
                              ,toList: toList
                              ,fromList: fromList};
-};// setup
-Elm.Native = Elm.Native || {};
-Elm.Native.Graphics = Elm.Native.Graphics || {};
-Elm.Native.Graphics.Input = Elm.Native.Graphics.Input || {};
-
-// definition
-Elm.Native.Graphics.Input.make = function(localRuntime) {
-	'use strict';
-
-	// attempt to short-circuit
-	if ('values' in Elm.Native.Graphics.Input) {
-		return Elm.Native.Graphics.Input.values;
-	}
-
-	var Color = Elm.Native.Color.make(localRuntime);
-	var List = Elm.Native.List.make(localRuntime);
-	var Signal = Elm.Native.Signal.make(localRuntime);
-	var Text = Elm.Native.Text.make(localRuntime);
-	var Utils = Elm.Native.Utils.make(localRuntime);
-
-	var Element = Elm.Native.Graphics.Element.make(localRuntime);
-
-
-	function renderDropDown(model)
-	{
-		var drop = Element.createNode('select');
-		drop.style.border = '0 solid';
-		drop.style.pointerEvents = 'auto';
-		drop.style.display = 'block';
-
-		drop.elm_values = List.toArray(model.values);
-		drop.elm_handler = model.handler;
-		var values = drop.elm_values;
-
-		for (var i = 0; i < values.length; ++i)
-		{
-			var option = Element.createNode('option');
-			var name = values[i]._0;
-			option.value = name;
-			option.innerHTML = name;
-			drop.appendChild(option);
-		}
-		drop.addEventListener('change', function() {
-			Signal.sendMessage(drop.elm_handler(drop.elm_values[drop.selectedIndex]._1));
-		});
-
-		return drop;
-	}
-
-	function updateDropDown(node, oldModel, newModel)
-	{
-		node.elm_values = List.toArray(newModel.values);
-		node.elm_handler = newModel.handler;
-
-		var values = node.elm_values;
-		var kids = node.childNodes;
-		var kidsLength = kids.length;
-
-		var i = 0;
-		for (; i < kidsLength && i < values.length; ++i)
-		{
-			var option = kids[i];
-			var name = values[i]._0;
-			option.value = name;
-			option.innerHTML = name;
-		}
-		for (; i < kidsLength; ++i)
-		{
-			node.removeChild(node.lastChild);
-		}
-		for (; i < values.length; ++i)
-		{
-			var option = Element.createNode('option');
-			var name = values[i]._0;
-			option.value = name;
-			option.innerHTML = name;
-			node.appendChild(option);
-		}
-		return node;
-	}
-
-	function dropDown(handler, values)
-	{
-		return A3(Element.newElement, 100, 24, {
-			ctor: 'Custom',
-			type: 'DropDown',
-			render: renderDropDown,
-			update: updateDropDown,
-			model: {
-				values: values,
-				handler: handler
-			}
-		});
-	}
-
-	function renderButton(model)
-	{
-		var node = Element.createNode('button');
-		node.style.display = 'block';
-		node.style.pointerEvents = 'auto';
-		node.elm_message = model.message;
-		function click()
-		{
-			Signal.sendMessage(node.elm_message);
-		}
-		node.addEventListener('click', click);
-		node.innerHTML = model.text;
-		return node;
-	}
-
-	function updateButton(node, oldModel, newModel)
-	{
-		node.elm_message = newModel.message;
-		var txt = newModel.text;
-		if (oldModel.text !== txt)
-		{
-			node.innerHTML = txt;
-		}
-		return node;
-	}
-
-	function button(message, text)
-	{
-		return A3(Element.newElement, 100, 40, {
-			ctor: 'Custom',
-			type: 'Button',
-			render: renderButton,
-			update: updateButton,
-			model: {
-				message: message,
-				text: text
-			}
-		});
-	}
-
-	function renderCustomButton(model)
-	{
-		var btn = Element.createNode('div');
-		btn.style.pointerEvents = 'auto';
-		btn.elm_message = model.message;
-
-		btn.elm_up    = Element.render(model.up);
-		btn.elm_hover = Element.render(model.hover);
-		btn.elm_down  = Element.render(model.down);
-
-		btn.elm_up.style.display = 'block';
-		btn.elm_hover.style.display = 'none';
-		btn.elm_down.style.display = 'none';
-
-		btn.appendChild(btn.elm_up);
-		btn.appendChild(btn.elm_hover);
-		btn.appendChild(btn.elm_down);
-
-		function swap(visibleNode, hiddenNode1, hiddenNode2)
-		{
-			visibleNode.style.display = 'block';
-			hiddenNode1.style.display = 'none';
-			hiddenNode2.style.display = 'none';
-		}
-
-		var overCount = 0;
-		function over(e)
-		{
-			if (overCount++ > 0) return;
-			swap(btn.elm_hover, btn.elm_down, btn.elm_up);
-		}
-		function out(e)
-		{
-			if (btn.contains(e.toElement || e.relatedTarget)) return;
-			overCount = 0;
-			swap(btn.elm_up, btn.elm_down, btn.elm_hover);
-		}
-		function up()
-		{
-			swap(btn.elm_hover, btn.elm_down, btn.elm_up);
-			Signal.sendMessage(btn.elm_message);
-		}
-		function down()
-		{
-			swap(btn.elm_down, btn.elm_hover, btn.elm_up);
-		}
-
-		btn.addEventListener('mouseover', over);
-		btn.addEventListener('mouseout', out);
-		btn.addEventListener('mousedown', down);
-		btn.addEventListener('mouseup', up);
-
-		return btn;
-	}
-
-	function updateCustomButton(node, oldModel, newModel)
-	{
-		node.elm_message = newModel.message;
-
-		var kids = node.childNodes;
-		var styleUp    = kids[0].style.display;
-		var styleHover = kids[1].style.display;
-		var styleDown  = kids[2].style.display;
-
-		Element.updateAndReplace(kids[0], oldModel.up, newModel.up);
-		Element.updateAndReplace(kids[1], oldModel.hover, newModel.hover);
-		Element.updateAndReplace(kids[2], oldModel.down, newModel.down);
-
-		var kids = node.childNodes;
-		kids[0].style.display = styleUp;
-		kids[1].style.display = styleHover;
-		kids[2].style.display = styleDown;
-
-		return node;
-	}
-
-	function max3(a, b, c)
-	{
-		var ab = a > b ? a : b;
-		return ab > c ? ab : c;
-	}
-
-	function customButton(message, up, hover, down)
-	{
-		return A3(Element.newElement,
-				  max3(up._0.props.width, hover._0.props.width, down._0.props.width),
-				  max3(up._0.props.height, hover._0.props.height, down._0.props.height),
-				  { ctor: 'Custom',
-					type: 'CustomButton',
-					render: renderCustomButton,
-					update: updateCustomButton,
-					model: {
-						message: message,
-						up: up,
-						hover: hover,
-						down: down
-					}
-				  });
-	}
-
-	function renderCheckbox(model)
-	{
-		var node = Element.createNode('input');
-		node.type = 'checkbox';
-		node.checked = model.checked;
-		node.style.display = 'block';
-		node.style.pointerEvents = 'auto';
-		node.elm_handler = model.handler;
-		function change()
-		{
-			Signal.sendMessage(node.elm_handler(node.checked));
-		}
-		node.addEventListener('change', change);
-		return node;
-	}
-
-	function updateCheckbox(node, oldModel, newModel)
-	{
-		node.elm_handler = newModel.handler;
-		node.checked = newModel.checked;
-		return node;
-	}
-
-	function checkbox(handler, checked)
-	{
-		return A3(Element.newElement, 13, 13, {
-			ctor: 'Custom',
-			type: 'CheckBox',
-			render: renderCheckbox,
-			update: updateCheckbox,
-			model: { handler: handler, checked: checked }
-		});
-	}
-
-	function setRange(node, start, end, dir)
-	{
-		if (node.parentNode)
-		{
-			node.setSelectionRange(start, end, dir);
-		}
-		else
-		{
-			setTimeout(function() {node.setSelectionRange(start, end, dir); }, 0);
-		}
-	}
-
-	function updateIfNeeded(css, attribute, latestAttribute)
-	{
-		if (css[attribute] !== latestAttribute)
-		{
-			css[attribute] = latestAttribute;
-		}
-	}
-	function cssDimensions(dimensions)
-	{
-		return dimensions.top    + 'px ' +
-			   dimensions.right  + 'px ' +
-			   dimensions.bottom + 'px ' +
-			   dimensions.left   + 'px';
-	}
-	function updateFieldStyle(css, style)
-	{
-		updateIfNeeded(css, 'padding', cssDimensions(style.padding));
-
-		var outline = style.outline;
-		updateIfNeeded(css, 'border-width', cssDimensions(outline.width));
-		updateIfNeeded(css, 'border-color', Color.toCss(outline.color));
-		updateIfNeeded(css, 'border-radius', outline.radius + 'px');
-
-		var highlight = style.highlight;
-		if (highlight.width === 0)
-		{
-			css.outline = 'none';
-		}
-		else
-		{
-			updateIfNeeded(css, 'outline-width', highlight.width + 'px');
-			updateIfNeeded(css, 'outline-color', Color.toCss(highlight.color));
-		}
-
-		var textStyle = style.style;
-		updateIfNeeded(css, 'color', Color.toCss(textStyle.color));
-		if (textStyle.typeface.ctor !== '[]')
-		{
-			updateIfNeeded(css, 'font-family', Text.toTypefaces(textStyle.typeface));
-		}
-		if (textStyle.height.ctor !== 'Nothing')
-		{
-			updateIfNeeded(css, 'font-size', textStyle.height._0 + 'px');
-		}
-		updateIfNeeded(css, 'font-weight', textStyle.bold ? 'bold' : 'normal');
-		updateIfNeeded(css, 'font-style', textStyle.italic ? 'italic' : 'normal');
-		if (textStyle.line.ctor !== 'Nothing')
-		{
-			updateIfNeeded(css, 'text-decoration', Text.toLine(textStyle.line._0));
-		}
-	}
-
-	function renderField(model)
-	{
-		var field = Element.createNode('input');
-		updateFieldStyle(field.style, model.style);
-		field.style.borderStyle = 'solid';
-		field.style.pointerEvents = 'auto';
-
-		field.type = model.type;
-		field.placeholder = model.placeHolder;
-		field.value = model.content.string;
-
-		field.elm_handler = model.handler;
-		field.elm_old_value = field.value;
-
-		function inputUpdate(event)
-		{
-			var curr = field.elm_old_value;
-			var next = field.value;
-			if (curr === next)
-			{
-				return;
-			}
-
-			var direction = field.selectionDirection === 'forward' ? 'Forward' : 'Backward';
-			var start = field.selectionStart;
-			var end = field.selectionEnd;
-			field.value = field.elm_old_value;
-
-			Signal.sendMessage(field.elm_handler({
-				string: next,
-				selection: {
-					start: start,
-					end: end,
-					direction: { ctor: direction }
-				}
-			}));
-		}
-
-		field.addEventListener('input', inputUpdate);
-		field.addEventListener('focus', function() {
-			field.elm_hasFocus = true;
-		});
-		field.addEventListener('blur', function() {
-			field.elm_hasFocus = false;
-		});
-
-		return field;
-	}
-
-	function updateField(field, oldModel, newModel)
-	{
-		if (oldModel.style !== newModel.style)
-		{
-			updateFieldStyle(field.style, newModel.style);
-		}
-		field.elm_handler = newModel.handler;
-
-		field.type = newModel.type;
-		field.placeholder = newModel.placeHolder;
-		var value = newModel.content.string;
-		field.value = value;
-		field.elm_old_value = value;
-		if (field.elm_hasFocus)
-		{
-			var selection = newModel.content.selection;
-			var direction = selection.direction.ctor === 'Forward' ? 'forward' : 'backward';
-			setRange(field, selection.start, selection.end, direction);
-		}
-		return field;
-	}
-
-	function mkField(type)
-	{
-		function field(style, handler, placeHolder, content)
-		{
-			var padding = style.padding;
-			var outline = style.outline.width;
-			var adjustWidth = padding.left + padding.right + outline.left + outline.right;
-			var adjustHeight = padding.top + padding.bottom + outline.top + outline.bottom;
-			return A3(Element.newElement, 200, 30, {
-				ctor: 'Custom',
-				type: type + 'Field',
-				adjustWidth: adjustWidth,
-				adjustHeight: adjustHeight,
-				render: renderField,
-				update: updateField,
-				model: {
-					handler: handler,
-					placeHolder: placeHolder,
-					content: content,
-					style: style,
-					type: type
-				}
-			});
-		}
-		return F4(field);
-	}
-
-	function hoverable(handler, wrappedElement)
-	{
-		function onHover(bool)
-		{
-			Signal.sendMessage(handler(bool));
-		}
-		var element = wrappedElement._0;
-		var newProps = Utils.update(element.props, { hover: onHover });
-		return {
-			ctor: wrappedElement.ctor,
-			_0: {
-				props: newProps,
-				element: element.element
-			}
-		};
-	}
-
-	function clickable(message, wrappedElement)
-	{
-		function onClick()
-		{
-			Signal.sendMessage(message);
-		}
-		var element = wrappedElement._0;
-		var newProps = Utils.update(element.props, { click: onClick });
-		return {
-			ctor: wrappedElement.ctor,
-			_0: {
-				props: newProps,
-				element: element.element
-			}
-		};
-	}
-
-	return Elm.Native.Graphics.Input.values = {
-		button: F2(button),
-		customButton: F4(customButton),
-		checkbox: F2(checkbox),
-		dropDown: F2(dropDown),
-		field: mkField('text'),
-		email: mkField('email'),
-		password: mkField('password'),
-		hoverable: F2(hoverable),
-		clickable: F2(clickable)
-	};
-};
-Elm.Graphics = Elm.Graphics || {};
-Elm.Graphics.Input = Elm.Graphics.Input || {};
-Elm.Graphics.Input.make = function (_elm) {
-   "use strict";
-   _elm.Graphics = _elm.Graphics || {};
-   _elm.Graphics.Input = _elm.Graphics.Input || {};
-   if (_elm.Graphics.Input.values) return _elm.Graphics.Input.values;
-   var _U = Elm.Native.Utils.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $Native$Graphics$Input = Elm.Native.Graphics.Input.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
-   var _op = {};
-   var clickable = $Native$Graphics$Input.clickable;
-   var hoverable = $Native$Graphics$Input.hoverable;
-   var dropDown = $Native$Graphics$Input.dropDown;
-   var checkbox = $Native$Graphics$Input.checkbox;
-   var customButton = $Native$Graphics$Input.customButton;
-   var button = $Native$Graphics$Input.button;
-   return _elm.Graphics.Input.values = {_op: _op
-                                       ,button: button
-                                       ,customButton: customButton
-                                       ,checkbox: checkbox
-                                       ,dropDown: dropDown
-                                       ,hoverable: hoverable
-                                       ,clickable: clickable};
 };Elm.Native.Json = {};
 
 Elm.Native.Json.make = function(localRuntime) {
@@ -8597,74 +8095,7 @@ Elm.Json.Decode.make = function (_elm) {
                                     ,andThen: andThen
                                     ,value: value
                                     ,customDecoder: customDecoder};
-};Elm.Native = Elm.Native || {};
-Elm.Native.Window = {};
-Elm.Native.Window.make = function make(localRuntime) {
-	localRuntime.Native = localRuntime.Native || {};
-	localRuntime.Native.Window = localRuntime.Native.Window || {};
-	if (localRuntime.Native.Window.values)
-	{
-		return localRuntime.Native.Window.values;
-	}
-
-	var NS = Elm.Native.Signal.make(localRuntime);
-	var Tuple2 = Elm.Native.Utils.make(localRuntime).Tuple2;
-
-
-	function getWidth()
-	{
-		return localRuntime.node.clientWidth;
-	}
-
-
-	function getHeight()
-	{
-		if (localRuntime.isFullscreen())
-		{
-			return window.innerHeight;
-		}
-		return localRuntime.node.clientHeight;
-	}
-
-
-	var dimensions = NS.input('Window.dimensions', Tuple2(getWidth(), getHeight()));
-
-
-	function resizeIfNeeded()
-	{
-		// Do not trigger event if the dimensions have not changed.
-		// This should be most of the time.
-		var w = getWidth();
-		var h = getHeight();
-		if (dimensions.value._0 === w && dimensions.value._1 === h)
-		{
-			return;
-		}
-
-		setTimeout(function() {
-			// Check again to see if the dimensions have changed.
-			// It is conceivable that the dimensions have changed
-			// again while some other event was being processed.
-			w = getWidth();
-			h = getHeight();
-			if (dimensions.value._0 === w && dimensions.value._1 === h)
-			{
-				return;
-			}
-			localRuntime.notify(dimensions.id, Tuple2(w, h));
-		}, 0);
-	}
-
-
-	localRuntime.addListener([dimensions.id], window, 'resize', resizeIfNeeded);
-
-
-	return localRuntime.Native.Window.values = {
-		dimensions: dimensions,
-		resizeIfNeeded: resizeIfNeeded
-	};
-};
-Elm.Random = Elm.Random || {};
+};Elm.Random = Elm.Random || {};
 Elm.Random.make = function (_elm) {
    "use strict";
    _elm.Random = _elm.Random || {};
@@ -8890,17 +8321,6 @@ Elm.Random.make = function (_elm) {
                                ,maxInt: maxInt
                                ,generate: generate
                                ,initialSeed: initialSeed};
-};Elm.Window = Elm.Window || {};
-Elm.Window.make = function (_elm) {
-   "use strict";
-   _elm.Window = _elm.Window || {};
-   if (_elm.Window.values) return _elm.Window.values;
-   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Window = Elm.Native.Window.make(_elm),$Signal = Elm.Signal.make(_elm);
-   var _op = {};
-   var dimensions = $Native$Window.dimensions;
-   var width = A2($Signal.map,$Basics.fst,dimensions);
-   var height = A2($Signal.map,$Basics.snd,dimensions);
-   return _elm.Window.values = {_op: _op,dimensions: dimensions,width: width,height: height};
 };(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 },{}],2:[function(require,module,exports){
@@ -10829,6 +10249,38 @@ Elm.Html.Events.make = function (_elm) {
                                     ,targetChecked: targetChecked
                                     ,keyCode: keyCode
                                     ,Options: Options};
+};Elm.StartApp = Elm.StartApp || {};
+Elm.StartApp.Simple = Elm.StartApp.Simple || {};
+Elm.StartApp.Simple.make = function (_elm) {
+   "use strict";
+   _elm.StartApp = _elm.StartApp || {};
+   _elm.StartApp.Simple = _elm.StartApp.Simple || {};
+   if (_elm.StartApp.Simple.values) return _elm.StartApp.Simple.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var start = function (config) {
+      var update = F2(function (maybeAction,model) {
+         var _p0 = maybeAction;
+         if (_p0.ctor === "Just") {
+               return A2(config.update,_p0._0,model);
+            } else {
+               return _U.crashCase("StartApp.Simple",{start: {line: 91,column: 7},end: {line: 96,column: 52}},_p0)("This should never happen.");
+            }
+      });
+      var actions = $Signal.mailbox($Maybe.Nothing);
+      var address = A2($Signal.forwardTo,actions.address,$Maybe.Just);
+      var model = A3($Signal.foldp,update,config.model,actions.signal);
+      return A2($Signal.map,config.view(address),model);
+   };
+   var Config = F3(function (a,b,c) {    return {model: a,view: b,update: c};});
+   return _elm.StartApp.Simple.values = {_op: _op,Config: Config,start: start};
 };Elm.Background = Elm.Background || {};
 Elm.Background.make = function (_elm) {
    "use strict";
@@ -10840,7 +10292,8 @@ Elm.Background.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $Graphics$Input = Elm.Graphics.Input.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
@@ -10848,7 +10301,10 @@ Elm.Background.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var drawBuilding = function (building) {
-      return A2($Graphics$Collage.filled,A3($Color.rgb,174,238,238),A2($Graphics$Collage.rect,building.width,building.height));
+      return A3($Graphics$Collage.collage,
+      500,
+      500,
+      _U.list([A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))]));
    };
    var redraw = F2(function (action,model) {
       var _p0 = action;
@@ -10862,13 +10318,12 @@ Elm.Background.make = function (_elm) {
    });
    var Redraw = {ctor: "Redraw"};
    var view = F2(function (address,building) {
-      return A3($Graphics$Collage.collage,
-      500,
-      500,
-      _U.list([$Graphics$Collage.toForm(A2($Graphics$Input.button,A2($Signal.message,address,Redraw),"redraw")),drawBuilding(building)]));
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")])),$Html.fromElement(drawBuilding(building))]));
    });
-   var init = {height: 100,width: 10,seed: $Random.initialSeed(0)};
-   var Building = F3(function (a,b,c) {    return {height: a,width: b,seed: c};});
+   var init = {height: 100,width: 10,seed: $Random.initialSeed(0),color: A3($Color.rgb,255,147,89)};
+   var Building = F4(function (a,b,c,d) {    return {height: a,width: b,seed: c,color: d};});
    return _elm.Background.values = {_op: _op,Building: Building,init: init,Redraw: Redraw,redraw: redraw,drawBuilding: drawBuilding,view: view};
 };Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -10879,12 +10334,12 @@ Elm.Main.make = function (_elm) {
    $Background = Elm.Background.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
    var _op = {};
-   var main = $Graphics$Element.show($Signal.map($Background.view));
+   var main = $StartApp$Simple.start({model: $Background.init,view: $Background.view,update: $Background.redraw});
    return _elm.Main.values = {_op: _op,main: main};
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script></body></html>

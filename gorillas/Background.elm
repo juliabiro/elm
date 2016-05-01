@@ -1,17 +1,17 @@
 module Background where
 
-import Html exposing (Html, div, button, toElement)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, button, toElement, fromElement, text)
+import Html.Events exposing (onClick) 
 import Random exposing (Seed, generate, initialSeed, float)
 import Color exposing (..)
-import Graphics.Collage exposing (..)
-import Graphics.Element exposing (..)
-import Graphics.Input exposing (button)
+import Graphics.Collage exposing (collage, rect, filled)
+import Graphics.Element exposing (Element)
 
 type alias Building = {
     height : Float
     , width : Float
     , seed : Seed
+    , color : Color
 } 
 
 
@@ -21,6 +21,7 @@ init  =
     height = 100
     , width = 10
     , seed = initialSeed 0
+    , color = rgb 255 147 89
     }
     
 type Action = Redraw 
@@ -40,27 +41,19 @@ redraw action model =
                 , width = width'
                 , seed = seed'
                 }
-{--
-drawBuilding : Building -> List Svg.Attribute
-drawBuilding  building  =
-    [ 
-      x "100"
-    , y (toString (floor-building.height))
-    , width (toString building.width)
-    , height (toString building.height)
-    , style "fill: #ff8833;" 
-    ]
---}
-drawBuilding : Building -> Form
-drawBuilding building =
-     rect building.width building.height
-        |> filled (rgb 174 238 238)
-    
 
-view : Signal.Address Action -> Building -> Element 
-view address building =
-    collage 500 500
+drawBuilding : Building -> Element
+drawBuilding building =
+    collage 500 500 
     [
-    toForm (Graphics.Input.button (Signal.message address Redraw) "redraw")
-    , drawBuilding building
+     rect building.width building.height
+        |> filled (building.color)
+    ]
+
+view : Signal.Address Action -> Building -> Html 
+view address building =
+    div []
+    [
+    button [ (onClick  address Redraw ) ] [text "redraw"]
+    , Html.fromElement(drawBuilding building)
     ]
