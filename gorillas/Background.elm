@@ -32,7 +32,7 @@ generateBuildings size (row, seed, float) =
         in 
             generateBuildings size ( b :: row, s', f')
     else
-        (row, seed, float)
+        (row, seed, -1*w/2)
 
  
 type Action = Redraw 

@@ -24,43 +24,42 @@ Elm.Background.make = function (_elm) {
    var generateBuildings = F2(function (size,_p0) {
       generateBuildings: while (true) {
          var _p1 = _p0;
-         var _p5 = _p1._1;
-         var _p4 = _p1._0;
-         var _p3 = _p1._2;
-         if (_U.cmp($List.length(_p4),size) < 0) {
+         var _p4 = _p1._1;
+         var _p3 = _p1._0;
+         if (_U.cmp($List.length(_p3),size) < 0) {
                var _p2 = A2($Building.reinit,
-               {ctor: "_Tuple2",_0: _p5,_1: _p3},
+               {ctor: "_Tuple2",_0: _p4,_1: _p1._2},
                {height: 100,width: 10,color: A3($Color.rgb,255,147,89),positionX: -1 * w / 2,positionY: floor});
                var b = _p2._0;
                var s$ = _p2._1;
                var f$ = _p2._2;
-               var _v1 = size,_v2 = {ctor: "_Tuple3",_0: A2($List._op["::"],b,_p4),_1: s$,_2: f$};
+               var _v1 = size,_v2 = {ctor: "_Tuple3",_0: A2($List._op["::"],b,_p3),_1: s$,_2: f$};
                size = _v1;
                _p0 = _v2;
                continue generateBuildings;
-            } else return {ctor: "_Tuple3",_0: _p4,_1: _p5,_2: _p3};
+            } else return {ctor: "_Tuple3",_0: _p3,_1: _p4,_2: -1 * w / 2};
       }
    });
    var init = A2(generateBuildings,10,{ctor: "_Tuple3",_0: _U.list([]),_1: $Random.initialSeed(0),_2: -1 * w / 2});
-   var redraw = F2(function (action,_p6) {
-      var _p7 = _p6;
-      var _p8 = action;
-      return A2(generateBuildings,$List.length(_p7._0),{ctor: "_Tuple3",_0: _U.list([]),_1: _p7._1,_2: _p7._2});
+   var redraw = F2(function (action,_p5) {
+      var _p6 = _p5;
+      var _p7 = action;
+      return A2(generateBuildings,$List.length(_p6._0),{ctor: "_Tuple3",_0: _U.list([]),_1: _p6._1,_2: _p6._2});
    });
    var h = 600;
    var drawGround = function () {
       var grassy = h / 2 - $Basics.abs(floor);
       return A2($Graphics$Collage.moveY,floor - grassy / 2,A2($Graphics$Collage.filled,A3($Color.rgb,0,255,150),A2($Graphics$Collage.rect,w,grassy)));
    }();
-   var view = F2(function (address,_p9) {
-      var _p10 = _p9;
+   var view = F2(function (address,_p8) {
+      var _p9 = _p8;
       return A2($Html.div,
       _U.list([]),
       _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")]))
               ,$Html.fromElement(A3($Graphics$Collage.collage,
               w,
               h,
-              _U.list([$Graphics$Collage.group(A2($List._op["::"],drawGround,drawRowOfHouses(_p10._0)))])))]));
+              _U.list([$Graphics$Collage.group(A2($List._op["::"],drawGround,drawRowOfHouses(_p9._0)))])))]));
    });
    return _elm.Background.values = {_op: _op
                                    ,h: h
