@@ -10350,7 +10350,8 @@ Elm.Background.make = function (_elm) {
          var _p1 = _p0;
          var _p4 = _p1._1;
          var _p3 = _p1._0;
-         if (_U.cmp($List.length(_p3),size) < 0) {
+         var s = $List.sum(A2($List.map,function (_) {    return _.width;},_p3));
+         if (_U.cmp(s,size) < 0) {
                var _p2 = A2($Building.reinit,
                {ctor: "_Tuple2",_0: _p4,_1: _p1._2},
                {height: 100,width: 10,color: A3($Color.rgb,255,147,89),positionX: -1 * w / 2,positionY: floor});
@@ -10364,11 +10365,11 @@ Elm.Background.make = function (_elm) {
             } else return {ctor: "_Tuple3",_0: _p3,_1: _p4,_2: -1 * w / 2};
       }
    });
-   var init = A2(generateBuildings,10,{ctor: "_Tuple3",_0: _U.list([]),_1: $Random.initialSeed(0),_2: -1 * w / 2});
+   var init = A2(generateBuildings,w,{ctor: "_Tuple3",_0: _U.list([]),_1: $Random.initialSeed(0),_2: -1 * w / 2});
    var redraw = F2(function (action,_p5) {
       var _p6 = _p5;
       var _p7 = action;
-      return A2(generateBuildings,$List.length(_p6._0),{ctor: "_Tuple3",_0: _U.list([]),_1: _p6._1,_2: _p6._2});
+      return A2(generateBuildings,w,{ctor: "_Tuple3",_0: _U.list([]),_1: _p6._1,_2: _p6._2});
    });
    var h = 600;
    var drawGround = function () {

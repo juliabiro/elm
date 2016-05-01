@@ -17,22 +17,25 @@ floor = -200
 
 init : Model
 init =
-    generateBuildings 10 ([], initialSeed 0, -1*w/2)
+    generateBuildings w ([], initialSeed 0, -1*w/2)
 
-generateBuildings : Int -> (Model)-> Model
+generateBuildings : Float -> (Model)-> Model
 generateBuildings size (row, seed, float) =
-    if List.length row < size then 
-        let (b, s', f') = (reinit (seed, float) {
-            height = 100
-            , width = 10
-            , color = rgb 255 147 89
-            , positionX = -1*w/2
-            , positionY = floor
-            })
-        in 
-            generateBuildings size ( b :: row, s', f')
-    else
-        (row, seed, -1*w/2)
+    let s = 
+        List.sum (List.map .width row)
+    in        
+        if s < size then 
+            let (b, s', f') = (reinit (seed, float) {
+                height = 100
+                , width = 10
+                , color = rgb 255 147 89
+                , positionX = -1*w/2
+                , positionY = floor
+                })
+            in 
+                generateBuildings size ( b :: row, s', f')
+        else
+            (row, seed, -1*w/2)
 
  
 type Action = Redraw 
@@ -42,7 +45,7 @@ redraw : Action -> Model -> Model
 redraw action (row, seed, float) =
     case action of 
     Redraw ->
-        generateBuildings (List.length row) ([], seed, float)
+        generateBuildings w ([], seed, float)
 
 
 
