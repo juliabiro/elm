@@ -20,19 +20,19 @@ setPositionX f b =
     {b|
     positionX = f}    
 
-reinit : Seed -> Building -> ( Building, Seed)
-reinit seed building =
+reinit : (Seed, Float) -> Building -> ( Building, Seed, Float)
+reinit (seed, f) building =
     let (height', seed') =
         generate (float 100 400) seed
     in 
         let (width', seed') =
-            generate (float 80 100) seed
+            generate (float 80 150) seed
         in 
             ({building |
             height = height'
             , width = width'
-            }, seed')
-
+            , positionX = f
+            }, seed', f+width')
 
 drawBuilding : Building  -> Form
 drawBuilding building  =

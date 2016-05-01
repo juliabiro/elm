@@ -8,7 +8,7 @@ import Graphics.Element exposing (Element)
 import Building exposing (Building, reinit, drawBuilding, setPositionX)
 
 type alias RowOfHouses = List Building
-type alias Model = ( RowOfHouses, Seed)
+type alias Model = ( RowOfHouses, Seed, Float)
 
 
 h = 600
@@ -17,12 +17,12 @@ floor = -200
 
 init : Model
 init =
-    generateBuildings 10 ([], initialSeed 0)
+    generateBuildings 10 ([], initialSeed 0, -1*w/2)
 
-generateBuildings : Int -> Model -> Model
-generateBuildings size (row, seed) =
+generateBuildings : Int -> (Model)-> Model
+generateBuildings size (row, seed, float) =
     if List.length row < size then 
-        let (b, s') = (reinit seed {
+        let (b, s', f') = (reinit (seed, float) {
             height = 100
             , width = 10
             , color = rgb 255 147 89
@@ -30,19 +30,19 @@ generateBuildings size (row, seed) =
             , positionY = floor
             })
         in 
-            generateBuildings size ( b :: row, s')
+            generateBuildings size ( b :: row, s', f')
     else
-        (row, seed)
+        (row, seed, float)
 
  
 type Action = Redraw 
 
 
 redraw : Action -> Model -> Model
-redraw action (row, seed) =
+redraw action (row, seed, float) =
     case action of 
     Redraw ->
-        generateBuildings (List.length row) ([], seed)
+        generateBuildings (List.length row) ([], seed, float)
 
 
 
@@ -55,43 +55,13 @@ drawGround =
         |> filled (rgb 0 255 150)
         |> moveY (floor - grassy/2) 
 
-
-setPositions :   RowOfHouses -> RowOfHouses
-setPositions row =
-    if row == [] then 
-        []
-    else
-        let (rh, rt) =
-            (List.head row, List.tail row)
-        in
-            if rh == Nothing then
-                []
-            else 
-                let rh' = Just rh
-                in                 
-                    if rt == Nothing then 
-                        [setPositionX (-1*w/2) rh']        
-                    else
-                        let rth = 
-                            List.head (setPositions (Just rt))
-                     in
-                        if rth == Nothing then
-                            [setPositionX (-1*w/2) rh']        
-                        else
-                            let rth'= Just rth 
-                            in 
-                                (setPositionX (rth'.position+rth'.width) rh') :: rt
-
 drawRowOfHouses :  RowOfHouses -> List Form
 drawRowOfHouses row =
-    if row == [] then 
-        []
-    else
-        setPositions row
-        |> List.map drawBuilding 
+    row 
+    |> List.map drawBuilding
 
 view : Signal.Address Action -> Model -> Html 
-view address (roh, s) =
+view address (roh, s, f) =
     div []
     [
     button [ (onClick  address Redraw ) ] [text "redraw"]

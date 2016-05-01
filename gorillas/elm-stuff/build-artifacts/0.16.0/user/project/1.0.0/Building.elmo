@@ -21,14 +21,17 @@ Elm.Building.make = function (_elm) {
       building.positionX + building.width / 2,
       A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))));
    };
-   var reinit = F2(function (seed,building) {
-      var _p0 = A2($Random.generate,A2($Random.$float,100,400),seed);
-      var height$ = _p0._0;
-      var seed$ = _p0._1;
-      var _p1 = A2($Random.generate,A2($Random.$float,80,100),seed);
-      var width$ = _p1._0;
-      var seed$ = _p1._1;
-      return {ctor: "_Tuple2",_0: _U.update(building,{height: height$,width: width$}),_1: seed$};
+   var reinit = F2(function (_p0,building) {
+      var _p1 = _p0;
+      var _p5 = _p1._0;
+      var _p4 = _p1._1;
+      var _p2 = A2($Random.generate,A2($Random.$float,100,400),_p5);
+      var height$ = _p2._0;
+      var seed$ = _p2._1;
+      var _p3 = A2($Random.generate,A2($Random.$float,80,150),_p5);
+      var width$ = _p3._0;
+      var seed$ = _p3._1;
+      return {ctor: "_Tuple3",_0: _U.update(building,{height: height$,width: width$,positionX: _p4}),_1: seed$,_2: _p4 + width$};
    });
    var setPositionX = F2(function (f,b) {    return _U.update(b,{positionX: f});});
    var Building = F5(function (a,b,c,d,e) {    return {height: a,width: b,positionX: c,positionY: d,color: e};});

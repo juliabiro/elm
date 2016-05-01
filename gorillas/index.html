@@ -10281,6 +10281,44 @@ Elm.StartApp.Simple.make = function (_elm) {
    };
    var Config = F3(function (a,b,c) {    return {model: a,view: b,update: c};});
    return _elm.StartApp.Simple.values = {_op: _op,Config: Config,start: start};
+};Elm.Building = Elm.Building || {};
+Elm.Building.make = function (_elm) {
+   "use strict";
+   _elm.Building = _elm.Building || {};
+   if (_elm.Building.values) return _elm.Building.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var drawBuilding = function (building) {
+      return A2($Graphics$Collage.moveY,
+      building.positionY + building.height / 2,
+      A2($Graphics$Collage.moveX,
+      building.positionX + building.width / 2,
+      A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))));
+   };
+   var reinit = F2(function (_p0,building) {
+      var _p1 = _p0;
+      var _p5 = _p1._0;
+      var _p4 = _p1._1;
+      var _p2 = A2($Random.generate,A2($Random.$float,100,400),_p5);
+      var height$ = _p2._0;
+      var seed$ = _p2._1;
+      var _p3 = A2($Random.generate,A2($Random.$float,80,150),_p5);
+      var width$ = _p3._0;
+      var seed$ = _p3._1;
+      return {ctor: "_Tuple3",_0: _U.update(building,{height: height$,width: width$,positionX: _p4}),_1: seed$,_2: _p4 + width$};
+   });
+   var setPositionX = F2(function (f,b) {    return _U.update(b,{positionX: f});});
+   var Building = F5(function (a,b,c,d,e) {    return {height: a,width: b,positionX: c,positionY: d,color: e};});
+   return _elm.Building.values = {_op: _op,Building: Building,setPositionX: setPositionX,reinit: reinit,drawBuilding: drawBuilding};
 };Elm.Background = Elm.Background || {};
 Elm.Background.make = function (_elm) {
    "use strict";
@@ -10288,6 +10326,7 @@ Elm.Background.make = function (_elm) {
    if (_elm.Background.values) return _elm.Background.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Building = Elm.Building.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
@@ -10299,56 +10338,61 @@ Elm.Background.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var positionCorner = F5(function (x,y,v1,v2,form) {    return A2($Graphics$Collage.moveY,v2 - y / 2,A2($Graphics$Collage.moveX,v1 + x / 2,form));});
-   var redraw = F2(function (action,model) {
-      var _p0 = action;
-      var _p1 = A2($Random.generate,A2($Random.$float,100,400),model.seed);
-      var height$ = _p1._0;
-      var seed$ = _p1._1;
-      var _p2 = A2($Random.generate,A2($Random.$float,80,100),model.seed);
-      var width$ = _p2._0;
-      var seed$ = _p2._1;
-      return _U.update(model,{height: height$,width: width$,seed: seed$});
-   });
+   var drawRowOfHouses = function (row) {    return A2($List.map,$Building.drawBuilding,row);};
    var Redraw = {ctor: "Redraw"};
-   var init = {height: 100,width: 10,seed: $Random.initialSeed(0),color: A3($Color.rgb,255,147,89)};
    var floor = -200;
-   var putOnFloor = F2(function (h,form) {    return A2($Graphics$Collage.moveY,floor + h,form);});
-   var drawBuilding = F2(function (building,x) {
-      return A2(putOnFloor,
-      building.height,
-      A5(positionCorner,
-      building.width,
-      building.height,
-      -500,
-      0,
-      A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))));
-   });
    var w = 1200;
+   var generateBuildings = F2(function (size,_p0) {
+      generateBuildings: while (true) {
+         var _p1 = _p0;
+         var _p5 = _p1._1;
+         var _p4 = _p1._0;
+         var _p3 = _p1._2;
+         if (_U.cmp($List.length(_p4),size) < 0) {
+               var _p2 = A2($Building.reinit,
+               {ctor: "_Tuple2",_0: _p5,_1: _p3},
+               {height: 100,width: 10,color: A3($Color.rgb,255,147,89),positionX: -1 * w / 2,positionY: floor});
+               var b = _p2._0;
+               var s$ = _p2._1;
+               var f$ = _p2._2;
+               var _v1 = size,_v2 = {ctor: "_Tuple3",_0: A2($List._op["::"],b,_p4),_1: s$,_2: f$};
+               size = _v1;
+               _p0 = _v2;
+               continue generateBuildings;
+            } else return {ctor: "_Tuple3",_0: _p4,_1: _p5,_2: _p3};
+      }
+   });
+   var init = A2(generateBuildings,10,{ctor: "_Tuple3",_0: _U.list([]),_1: $Random.initialSeed(0),_2: -1 * w / 2});
+   var redraw = F2(function (action,_p6) {
+      var _p7 = _p6;
+      var _p8 = action;
+      return A2(generateBuildings,$List.length(_p7._0),{ctor: "_Tuple3",_0: _U.list([]),_1: _p7._1,_2: _p7._2});
+   });
    var h = 600;
    var drawGround = function () {
       var grassy = h / 2 - $Basics.abs(floor);
       return A2($Graphics$Collage.moveY,floor - grassy / 2,A2($Graphics$Collage.filled,A3($Color.rgb,0,255,150),A2($Graphics$Collage.rect,w,grassy)));
    }();
-   var view = F2(function (address,building) {
+   var view = F2(function (address,_p9) {
+      var _p10 = _p9;
       return A2($Html.div,
       _U.list([]),
       _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")]))
-              ,$Html.fromElement(A3($Graphics$Collage.collage,w,h,_U.list([drawGround,A2(drawBuilding,building,0)])))]));
+              ,$Html.fromElement(A3($Graphics$Collage.collage,
+              w,
+              h,
+              _U.list([$Graphics$Collage.group(A2($List._op["::"],drawGround,drawRowOfHouses(_p10._0)))])))]));
    });
-   var Building = F4(function (a,b,c,d) {    return {height: a,width: b,seed: c,color: d};});
    return _elm.Background.values = {_op: _op
-                                   ,Building: Building
                                    ,h: h
                                    ,w: w
                                    ,floor: floor
                                    ,init: init
+                                   ,generateBuildings: generateBuildings
                                    ,Redraw: Redraw
                                    ,redraw: redraw
-                                   ,positionCorner: positionCorner
-                                   ,putOnFloor: putOnFloor
-                                   ,drawBuilding: drawBuilding
                                    ,drawGround: drawGround
+                                   ,drawRowOfHouses: drawRowOfHouses
                                    ,view: view};
 };Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
