@@ -8,7 +8,6 @@ Elm.Background.make = function (_elm) {
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
@@ -17,12 +16,6 @@ Elm.Background.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var drawBuilding = function (building) {
-      return A3($Graphics$Collage.collage,
-      500,
-      500,
-      _U.list([A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))]));
-   };
    var redraw = F2(function (action,model) {
       var _p0 = action;
       var _p1 = A2($Random.generate,A2($Random.$float,100,400),model.seed);
@@ -34,12 +27,22 @@ Elm.Background.make = function (_elm) {
       return _U.update(model,{height: height$,width: width$,seed: seed$});
    });
    var Redraw = {ctor: "Redraw"};
+   var init = {height: 100,width: 10,seed: $Random.initialSeed(0),color: A3($Color.rgb,255,147,89)};
+   var w = 1200;
+   var drawBuilding = F2(function (building,x) {
+      return A2($Graphics$Collage.moveY,
+      building.height / 2,
+      A2($Graphics$Collage.moveX,
+      -1 * w / 2 + building.width / 2,
+      A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))));
+   });
+   var h = 600;
    var view = F2(function (address,building) {
       return A2($Html.div,
       _U.list([]),
-      _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")])),$Html.fromElement(drawBuilding(building))]));
+      _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,Redraw)]),_U.list([$Html.text("redraw")]))
+              ,$Html.fromElement(A3($Graphics$Collage.collage,w,h,_U.list([A2(drawBuilding,building,0)])))]));
    });
-   var init = {height: 100,width: 10,seed: $Random.initialSeed(0),color: A3($Color.rgb,255,147,89)};
    var Building = F4(function (a,b,c,d) {    return {height: a,width: b,seed: c,color: d};});
-   return _elm.Background.values = {_op: _op,Building: Building,init: init,Redraw: Redraw,redraw: redraw,drawBuilding: drawBuilding,view: view};
+   return _elm.Background.values = {_op: _op,Building: Building,h: h,w: w,init: init,Redraw: Redraw,redraw: redraw,drawBuilding: drawBuilding,view: view};
 };

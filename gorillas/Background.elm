@@ -4,7 +4,7 @@ import Html exposing (Html, div, button, toElement, fromElement, text)
 import Html.Events exposing (onClick) 
 import Random exposing (Seed, generate, initialSeed, float)
 import Color exposing (..)
-import Graphics.Collage exposing (collage, rect, filled)
+import Graphics.Collage exposing (Form, collage, rect, filled, toForm, moveX, moveY)
 import Graphics.Element exposing (Element)
 
 type alias Building = {
@@ -14,6 +14,8 @@ type alias Building = {
     , color : Color
 } 
 
+h= 600
+w= 1200
 
 init :  Building
 init  =
@@ -42,18 +44,20 @@ redraw action model =
                 , seed = seed'
                 }
 
-drawBuilding : Building -> Element
-drawBuilding building =
-    collage 500 500 
-    [
+drawBuilding : Building -> Int -> Form
+drawBuilding building x =
      rect building.width building.height
         |> filled (building.color)
-    ]
+        |> moveX (-1*w/2 + building.width/2)
+        |> moveY (building.height/2)
 
 view : Signal.Address Action -> Building -> Html 
 view address building =
     div []
     [
     button [ (onClick  address Redraw ) ] [text "redraw"]
-    , Html.fromElement(drawBuilding building)
+    , Html.fromElement(
+        collage w h     
+        [(drawBuilding building 0)]
+    )
     ]
