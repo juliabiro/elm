@@ -14,8 +14,9 @@ type alias Building = {
     , color : Color
 } 
 
-h= 600
-w= 1200
+h = 600
+w = 1200
+floor = -200
 
 init :  Building
 init  =
@@ -43,13 +44,23 @@ redraw action model =
                 , width = width'
                 , seed = seed'
                 }
+positionCorner : Float ->Float->Float->Float -> Form -> Form
+positionCorner x y v1 v2 form = 
+        form
+        |> moveX (v1 + x/2)
+        |> moveY (v2  - y/2)
+
+putOnFloor : Float -> Form -> Form
+putOnFloor h form =
+    form 
+        |> moveY (floor + h)        
 
 drawBuilding : Building -> Int -> Form
 drawBuilding building x =
-     rect building.width building.height
+        rect building.width building.height 
         |> filled (building.color)
-        |> moveX (-1*w/2 + building.width/2)
-        |> moveY (building.height/2)
+        |> positionCorner building.width building.height -500 0
+        |> putOnFloor building.height 
 
 view : Signal.Address Action -> Building -> Html 
 view address building =
