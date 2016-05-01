@@ -15,9 +15,11 @@ Elm.Building.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var drawBuilding = function (building) {
-      return A2($Graphics$Collage.moveX,
-      building.position + building.width / 2,
-      A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height)));
+      return A2($Graphics$Collage.moveY,
+      building.positionY + building.height / 2,
+      A2($Graphics$Collage.moveX,
+      building.positionX + building.width / 2,
+      A2($Graphics$Collage.filled,building.color,A2($Graphics$Collage.rect,building.width,building.height))));
    };
    var reinit = F2(function (seed,building) {
       var _p0 = A2($Random.generate,A2($Random.$float,100,400),seed);
@@ -28,7 +30,7 @@ Elm.Building.make = function (_elm) {
       var seed$ = _p1._1;
       return {ctor: "_Tuple2",_0: _U.update(building,{height: height$,width: width$}),_1: seed$};
    });
-   var setPosition = F2(function (f,b) {    return _U.update(b,{position: f});});
-   var Building = F4(function (a,b,c,d) {    return {height: a,width: b,position: c,color: d};});
-   return _elm.Building.values = {_op: _op,Building: Building,setPosition: setPosition,reinit: reinit,drawBuilding: drawBuilding};
+   var setPositionX = F2(function (f,b) {    return _U.update(b,{positionX: f});});
+   var Building = F5(function (a,b,c,d,e) {    return {height: a,width: b,positionX: c,positionY: d,color: e};});
+   return _elm.Building.values = {_op: _op,Building: Building,setPositionX: setPositionX,reinit: reinit,drawBuilding: drawBuilding};
 };

@@ -10,14 +10,15 @@ import Graphics.Element exposing (Element)
 type alias Building = {
     height : Float
     , width : Float
-    , position: Float
+    , positionX: Float
+    , positionY: Float
     , color : Color
 } 
 
-setPosition : Float-> Building ->Building
-setPosition f b =
+setPositionX : Float-> Building ->Building
+setPositionX f b =
     {b|
-    position = f}    
+    positionX = f}    
 
 reinit : Seed -> Building -> ( Building, Seed)
 reinit seed building =
@@ -33,9 +34,9 @@ reinit seed building =
             }, seed')
 
 
-
 drawBuilding : Building  -> Form
 drawBuilding building  =
         rect building.width building.height 
         |> filled (building.color)
-        |> moveX (building.position+building.width/2)
+        |> moveX (building.positionX+building.width/2)
+        |> moveY (building.positionY+building.height/2)

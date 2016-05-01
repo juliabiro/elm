@@ -5,10 +5,10 @@ import Random exposing (Seed, generate, initialSeed, float)
 import Color exposing (..)
 import Graphics.Collage exposing (Form, collage, rect, filled, toForm, moveX, moveY, group)
 import Graphics.Element exposing (Element)
-import Building exposing (Building, reinit, drawBuilding, setPosition)
+import Building exposing (Building, reinit, drawBuilding, setPositionX)
 
 type alias RowOfHouses = List Building
-type alias Model = (RowOfHouses, Seed)
+type alias Model = ( RowOfHouses, Seed)
 
 
 h = 600
@@ -26,6 +26,8 @@ generateBuildings size (row, seed) =
             height = 100
             , width = 10
             , color = rgb 255 147 89
+            , positionX = -1*w/2
+            , positionY = floor
             })
         in 
             generateBuildings size ( b :: row, s')
@@ -40,12 +42,8 @@ redraw : Action -> Model -> Model
 redraw action (row, seed) =
     case action of 
     Redraw ->
-        List.map (reinit seed) row 
+        generateBuildings (List.length row) ([], seed)
 
-putOnFloor :  Form -> Form
-putOnFloor form =
-    form 
-        |> moveY (floor + form.height)        
 
 
 drawGround : Form 
@@ -58,31 +56,49 @@ drawGround =
         |> moveY (floor - grassy/2) 
 
 
-setPositions : RowOfHouses -> RowOfHouses
+setPositions :   RowOfHouses -> RowOfHouses
 setPositions row =
-    let (rh, rt) =
-        (List.head row, setPositions List.tail row)
-    in 
-        (setPosition (List.head rt.position - rh.width) rh)  :: rt
+    if row == [] then 
+        []
+    else
+        let (rh, rt) =
+            (List.head row, List.tail row)
+        in
+            if rh == Nothing then
+                []
+            else 
+                let rh' = Just rh
+                in                 
+                    if rt == Nothing then 
+                        [setPositionX (-1*w/2) rh']        
+                    else
+                        let rth = 
+                            List.head (setPositions (Just rt))
+                     in
+                        if rth == Nothing then
+                            [setPositionX (-1*w/2) rh']        
+                        else
+                            let rth'= Just rth 
+                            in 
+                                (setPositionX (rth'.position+rth'.width) rh') :: rt
 
-drawRowOfHouses : RowOfHouses -> List Form
+drawRowOfHouses :  RowOfHouses -> List Form
 drawRowOfHouses row =
-    let 
-        row' = List.map (setPosition w/2) row
-    in 
-        setPositions row'
+    if row == [] then 
+        []
+    else
+        setPositions row
         |> List.map drawBuilding 
-        |> List.map putOnFloor 
 
-view : Signal.Address Action -> RowOfHouses -> Html 
-view address model =
+view : Signal.Address Action -> Model -> Html 
+view address (roh, s) =
     div []
     [
     button [ (onClick  address Redraw ) ] [text "redraw"]
     , Html.fromElement(
         collage w h     
         [
-        drawGround :: drawRowOfHouses model
+        drawGround :: drawRowOfHouses roh
         |> group
         ]
         )
