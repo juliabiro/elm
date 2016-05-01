@@ -10314,7 +10314,10 @@ Elm.Building.make = function (_elm) {
       var _p3 = A2($Random.generate,A2($Random.$float,80,150),_p5);
       var width$ = _p3._0;
       var seed$ = _p3._1;
-      return {ctor: "_Tuple3",_0: _U.update(building,{height: height$,width: width$,positionX: _p4}),_1: seed$,_2: _p4 + width$};
+      return {ctor: "_Tuple3"
+             ,_0: _U.update(building,{height: height$,width: width$,positionX: _p4,color: A3($Color.rgb,156,35,89)})
+             ,_1: seed$
+             ,_2: _p4 + width$};
    });
    var setPositionX = F2(function (f,b) {    return _U.update(b,{positionX: f});});
    var Building = F5(function (a,b,c,d,e) {    return {height: a,width: b,positionX: c,positionY: d,color: e};});

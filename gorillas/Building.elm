@@ -2,7 +2,7 @@ module Building where
 
 import Html exposing (Html, div, button, toElement, fromElement, text)
 import Html.Events exposing (onClick) 
-import Random exposing (Seed, generate, initialSeed, float)
+import Random exposing (Seed, generate, initialSeed, float, int)
 import Color exposing (..)
 import Graphics.Collage exposing (Form, collage, rect, filled, toForm, moveX, moveY)
 import Graphics.Element exposing (Element)
@@ -32,6 +32,7 @@ reinit (seed, f) building =
             height = height'
             , width = width'
             , positionX = f
+            , color = rgb 156 35 89
             }, seed', f+width')
 
 drawBuilding : Building  -> Form
