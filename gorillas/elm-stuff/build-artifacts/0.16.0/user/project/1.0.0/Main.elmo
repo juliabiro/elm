@@ -7,12 +7,12 @@ Elm.Main.make = function (_elm) {
    $Background = Elm.Background.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm),
-   $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
+   $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var main = $StartApp$Simple.start({model: $Background.init,update: $Background.redraw,view: $Background.view});
+   var main = $Graphics$Element.show($Signal.map($Background.view));
    return _elm.Main.values = {_op: _op,main: main};
 };

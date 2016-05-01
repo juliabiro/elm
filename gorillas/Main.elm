@@ -1,8 +1,8 @@
 import Background exposing (init, redraw, view)
-import StartApp.Simple exposing (start)
+import Graphics.Element exposing (..)
+import Window
 
-main = start {
-    model = init
-    , update = redraw
-    , view= view
-    }
+main :  Signal Element
+main =
+    view Signal.map init
+

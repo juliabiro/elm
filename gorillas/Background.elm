@@ -1,14 +1,16 @@
 module Background where
 
-import Html exposing (Html, div, button)
-import Random exposing (Seed, generate, initialSeed, int)
-import Svg exposing (svg, rect, text, text')
-import Svg.Events exposing (onClick)
-import Svg.Attributes exposing (..)
+import Html exposing (Html, div, button, toElement)
+import Html.Events exposing (onClick)
+import Random exposing (Seed, generate, initialSeed, float)
+import Color exposing (..)
+import Graphics.Collage exposing (..)
+import Graphics.Element exposing (..)
+import Graphics.Input exposing (button)
 
 type alias Building = {
-    height : Int
-    , width : Int
+    height : Float
+    , width : Float
     , seed : Seed
 } 
 
@@ -28,19 +30,17 @@ redraw action model =
     case action of 
     Redraw ->
         let (height', seed') =
-            generate (int 100 400) model.seed
+            generate (float 100 400) model.seed
         in 
             let (width', seed') =
-                generate (int 80 100) model.seed
+                generate (float 80 100) model.seed
             in 
                 {model |
                 height = height'
                 , width = width'
                 , seed = seed'
                 }
-
-floor = 500
-
+{--
 drawBuilding : Building -> List Svg.Attribute
 drawBuilding  building  =
     [ 
@@ -50,16 +50,17 @@ drawBuilding  building  =
     , height (toString building.height)
     , style "fill: #ff8833;" 
     ]
+--}
+drawBuilding : Building -> Form
+drawBuilding building =
+     rect building.width building.height
+        |> filled (rgb 174 238 238)
+    
 
-view : Signal.Address Action -> Building -> Html
+view : Signal.Address Action -> Building -> Element 
 view address building =
-   div []
-    [ 
-    button [onClick (Signal.message address Redraw) ][text "redraw"]
-    , svg 
-        [ width "500", height "500", viewBox "0 0 500 500"]
-        [ rect (drawBuilding building )
-            []
-        ]
+    collage 500 500
+    [
+    toForm (Graphics.Input.button (Signal.message address Redraw) "redraw")
+    , drawBuilding building
     ]
-
