@@ -12,6 +12,7 @@ type alias Building = {
     , seed : Seed
 } 
 
+
 init :  Building
 init  =
     {
@@ -27,10 +28,10 @@ redraw action model =
     case action of 
     Redraw ->
         let (height', seed') =
-            generate (int 0 100) model.seed
+            generate (int 100 400) model.seed
         in 
             let (width', seed') =
-                generate (int 0 10) model.seed
+                generate (int 80 100) model.seed
             in 
                 {model |
                 height = height'
@@ -38,20 +39,26 @@ redraw action model =
                 , seed = seed'
                 }
 
+floor = 500
+
+drawBuilding : Building -> List Svg.Attribute
+drawBuilding  building  =
+    [ 
+      x "100"
+    , y (toString (floor-building.height))
+    , width (toString building.width)
+    , height (toString building.height)
+    , style "fill: #ff8833;" 
+    ]
+
 view : Signal.Address Action -> Building -> Html
-view address model =
+view address building =
    div []
     [ 
     button [onClick (Signal.message address Redraw) ][text "redraw"]
     , svg 
         [ width "500", height "500", viewBox "0 0 500 500"]
-        [ rect 
-            [ x "100"
-            , y "100" 
-            , width (toString model.width)
-            , height (toString model.height)
-            , style "fill: #ff0000;"
-            ] 
+        [ rect (drawBuilding building )
             []
         ]
     ]
